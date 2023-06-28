@@ -40,13 +40,8 @@ int obtemTamMensagem(unsigned int tamanho_sequencia_tipo);
 void desmembraMensagem();
 
 
-// com os parametros recebidos,
-// monta a mensagem e salva na variavel global.
-void montaMensagem(int tam, int sequencia, int tipo, unsigned char* dados);
-
-
 // envia a mensagem salva na variavel global para a outra maquina.
-void enviaMensagem();
+void enviaMensagem(int tam, int sequencia, int tipo, unsigned char* dados);
 
 
 // inicia o timeout e espera uma mensagem,
@@ -57,7 +52,7 @@ int recebeMensagem();
 
 // procedimento para conversa entre cliente e servidor
 // controla o limite de timeouts
-int conversaPadrao();
+int conversaPadrao(int tam, int sequencia, int tipo, unsigned char* dados);
 
 // funcao do servidor de enviar e receber mensagens
 void envia_recebe();
