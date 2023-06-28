@@ -8,6 +8,8 @@ tratador global_info;
 extern mensagem men_recebida;
 extern mensagem men_enviada;
 
+extern dirHandler path_inf;
+
 FILE* arquivoAberto;
 char tipoDeAcesso[3];
     
@@ -56,7 +58,7 @@ void trata_mensagem_recebida() {
 
             //
 
-            arquivoAberto = fopen((char*) char_buffer, tipoDeAcesso);
+            arquivoAberto = fopen((char*)char_buffer, tipoDeAcesso);
             if (arquivoAberto == NULL) {
                 fprintf(stderr, "ERRO: Falha ao abrir arquivo\n");
                 enviaMensagem(0, 0, MEN_TIPO_ERRO, NULL);
@@ -309,6 +311,10 @@ void inicia_transferencia() {
         return;
     }
 
+    //
+
+    path_inf.diretorio_atual = "./"
+    
     //
 
     startConnection();
