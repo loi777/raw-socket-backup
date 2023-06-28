@@ -18,6 +18,7 @@ FILE* arquivoAberto;
 // 
 void trata_mensagem_recebida() {
     int initial_message;
+    unsigned char char_buffer[64];
 
     //
 
@@ -37,13 +38,12 @@ void trata_mensagem_recebida() {
 
 
         case (MEM_TIPO_NOME_ARQUIVO) :
-            unsigned char nome[64];
-            strcpy((char*) nome, (char*) men_recebida.dados);
-            printf("arquivo: %s\n\n", nome);
+            strcpy((char*) char_buffer, (char*) men_recebida.dados);
+            printf("arquivo: %s\n\n", char_buffer);
 
             //
 
-            arquivoAberto = fopen((char*) nome, "w");
+            arquivoAberto = fopen((char*) char_buffer, "w");
             if (arquivoAberto == NULL) {
                 montaMensagem(0, 0, MEM_TIPO_ERRO, NULL);
                 enviaMensagem();
@@ -60,18 +60,24 @@ void trata_mensagem_recebida() {
 
         case (MEM_TIPO_DADOS) :
 
-            strcpy((char*) nome, (char*) men_recebida.dados);
+            strcpy((char*) char_buffer, (char*) men_recebida.dados);
 
-            printf("dados: %s\n\n", nome);
-            fprintf(arquivoAberto, "%s", (char*)nome);
+            printf("dados: %s\n\n", char_buffer);
+            fprintf(arquivoAberto, "%s", (char*)char_buffer);
             
             montaMensagem(0, 0, MEM_TIPO_ACK, NULL);
-
             enviaMensagem();
-            recebeMensagem();
 
         break;
 
+        case (MEM_TIPO_FIM_ARQUIVO) :
+
+            fclose(arquivoAberto);
+            
+            montaMensagem(0, 0, MEM_TIPO_ACK, NULL);
+            enviaMensagem();
+
+        break;
 
         case (MEM_TIPO_ENCERRADO) :
             // mensagem que deve ser encerrado o programa, apenas sai
