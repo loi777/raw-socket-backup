@@ -9,6 +9,7 @@ extern mensagem men_recebida;
 extern mensagem men_enviada;
 
 FILE* arquivoAberto;
+char tipoDeAcesso[3];
 
 //=====================================================
 
@@ -32,10 +33,44 @@ void trata_mensagem_recebida() {
 
     switch(initial_message) {
         case (MEM_TIPO_BACKUP_1) :
-            montaMensagem(0, 0, MEM_TIPO_ACK, NULL);
-            enviaMensagem();
+            strcpy(tipoDeAcesso, "w");
+
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
         break;
 
+        case (MEM_TIPO_RECUPERA_1) :
+            strcpy(tipoDeAcesso, "r");
+
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
+        break;
+
+        case (MEM_TIPO_BACKUP_MULT) :
+            strcpy(tipoDeAcesso, "w");
+
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
+        break;
+
+        case (MEM_TIPO_RECUPERA_MULT) :
+            strcpy(tipoDeAcesso, "r");
+
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
+        break;
+
+        //
+
+        case (MEM_TIPO_FIM_ARQUIVO) :
+
+            fclose(arquivoAberto);
+            
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
+
+        break;
+
+        case (MEM_TIPO_FIM_MULT) :
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
+        break;
+
+        //
 
         case (MEM_TIPO_NOME_ARQUIVO) :
             strcpy((char*) char_buffer, (char*) men_recebida.dados);
@@ -43,18 +78,16 @@ void trata_mensagem_recebida() {
 
             //
 
-            arquivoAberto = fopen((char*) char_buffer, "w");
+            arquivoAberto = fopen((char*) char_buffer, tipoDeAcesso);
             if (arquivoAberto == NULL) {
-                montaMensagem(0, 0, MEM_TIPO_ERRO, NULL);
-                enviaMensagem();
+                enviaMensagem(0, 0, MEM_TIPO_ERRO, NULL);
                 fprintf(stderr, "ERRO ao abrir arquivo");
                 return;
             }
 
             //
 
-            montaMensagem(0, 0, MEM_TIPO_ACK, NULL);
-            enviaMensagem();
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
         break;
 
 
@@ -65,17 +98,7 @@ void trata_mensagem_recebida() {
             printf("dados: %s\n\n", char_buffer);
             fprintf(arquivoAberto, "%s", (char*)char_buffer);
             
-            montaMensagem(0, 0, MEM_TIPO_ACK, NULL);
-            enviaMensagem();
-
-        break;
-
-        case (MEM_TIPO_FIM_ARQUIVO) :
-
-            fclose(arquivoAberto);
-            
-            montaMensagem(0, 0, MEM_TIPO_ACK, NULL);
-            enviaMensagem();
+            enviaMensagem(0, 0, MEM_TIPO_ACK, NULL);
 
         break;
 
@@ -115,15 +138,13 @@ void envia_proxima_mensagem() {
 
             //
 
-            montaMensagem(0, 0, MEM_TIPO_BACKUP_1, NULL);
-            if (!conversaPadrao()) {
+            if (!conversaPadrao(0, 0, MEM_TIPO_BACKUP_1, NULL)) {
                 return;
             }
 
             //
 
-            montaMensagem(strlen((char*)nome), 0, MEM_TIPO_NOME_ARQUIVO, nome);
-            if (!conversaPadrao()) {
+            if (!conversaPadrao(strlen((char*)nome), 0, MEM_TIPO_NOME_ARQUIVO, nome)) {
                 return;
             }
 
@@ -132,22 +153,20 @@ void envia_proxima_mensagem() {
             unsigned char dados[64];
             FILE* arquivo_backup = fopen((char*)nome, "r");
 
-            while(feof(arquivo_backup)) {
+            while(!feof(arquivo_backup)) {
 
                 fgets((char*)dados, 63, arquivo_backup);
 
                 //
 
-                montaMensagem(strlen((char*)dados), 0, MEM_TIPO_DADOS, dados);
-                if (!conversaPadrao()) {
+                if (!conversaPadrao(strlen((char*)dados), 0, MEM_TIPO_DADOS, dados)) {
                     return;
                 }
             }
 
             //
 
-            montaMensagem(0, 0, MEM_TIPO_FIM_ARQUIVO, NULL);
-            if (!conversaPadrao()) {
+            if (!conversaPadrao(0, 0, MEM_TIPO_FIM_ARQUIVO, NULL)) {
                 return;
             }
         break;
