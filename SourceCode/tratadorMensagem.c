@@ -195,6 +195,18 @@ void trata_mensagem_recebida() {
             enviaMensagem(0, 0, MEN_TIPO_ACK, NULL);
 
         break;
+        
+
+        case (MEN_TIPO_MUDAR_DIR) :
+
+            strcpy(path_inf.diretorio_atual, (char*) men_recebida.dados);
+
+            printf("novo dir: %s\n\n", path_inf.diretorio_atual);
+            
+            enviaMensagem(0, 0, MEN_TIPO_ACK, NULL);
+
+        break;
+        
 
         case (MEN_TIPO_ENCERRADO) :
             // mensagem que deve ser encerrado o programa, apenas sai
@@ -311,11 +323,6 @@ void envia_proxima_mensagem() {
             // pergunta se existe na outra maquina
             enviaMensagem(strlen((char *)nome), 0, MEN_TIPO_RECUPERA_1, nome);
             trata_mensagem_recebida();
-
-            if (obtemTipoMensagem(men_recebida.tamanho_sequencia_tipo) == MEN_TIPO_ERRO) {
-                fprintf(stderr, "ERRO: arquivo nao existe no servidor\n");
-                return;
-            }
 
             // if (!conversaPadrao(strlen((char *)nome), 0, MEN_TIPO_RECUPERA_1, nome)) {
             //     if (obtemTipoMensagem(men_recebida.tamanho_sequencia_tipo) == MEN_TIPO_ERRO) {
